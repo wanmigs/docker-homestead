@@ -14,7 +14,7 @@ locale-gen en_US.UTF-8
 export LANG=en_US.UTF-8
 
 # Basic packages
-apt-get install -y sudo software-properties-common nano curl \
+apt-get install -y sudo software-properties-common curl \
 build-essential dos2unix gcc git git-flow libpcre3-dev apt-utils \
 make python2.7-dev python-pip re2c supervisor unattended-upgrades whois vim zip unzip
 
@@ -75,14 +75,14 @@ sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 64;/" 
 
 mkdir -p /run/php
 touch /run/php/php7.2-fpm.sock
-sed -i "s/user = www-data/user/" /etc/php/7.2/fpm/pool.d/www.conf
-sed -i "s/group = www-data/group/" /etc/php/7.2/fpm/pool.d/www.conf
-sed -i "s/;listen\.owner.*/listen.owner/" /etc/php/7.2/fpm/pool.d/www.conf
-sed -i "s/;listen\.group.*/listen.group/" /etc/php/7.2/fpm/pool.d/www.conf
+sed -i "s/user = www-data/" /etc/php/7.2/fpm/pool.d/www.conf
+sed -i "s/group = www-data/" /etc/php/7.2/fpm/pool.d/www.conf
+sed -i "s/;listen\.owner.*/" /etc/php/7.2/fpm/pool.d/www.conf
+sed -i "s/;listen\.group.*/" /etc/php/7.2/fpm/pool.d/www.conf
 sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/7.2/fpm/pool.d/www.conf
 
 # Install Node
-curl --silent --location https://deb.nodesource.com/setup_8.x
+curl --silent --location https://deb.nodesource.com/setup_8.x | bash -
 apt-get install -y nodejs
 
 # Install Yarn
@@ -106,11 +106,9 @@ sed -i "s/daemonize yes/daemonize no/" /etc/redis/redis.conf
 
 # Configure default nginx site
 block="server {
-    listen 80 default_server;
-    listen [::]:80 default_server ipv6only=on;
-
-    root /var/www/html;
+    listen 80;
     server_name localhost;
+    root /var/www/html;
 
     index index.html index.htm index.php index.nginx-debian.html;
 
@@ -124,7 +122,7 @@ block="server {
     location = /robots.txt  { access_log off; log_not_found off; }
 
     access_log off;
-    error_log  /var/log/nginx/app-error.log error;
+    error_log  /var/log/nginx/localhost-error.log error;
 
     error_page 404 /index.php;
 
@@ -134,6 +132,7 @@ block="server {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass unix:/run/php/php7.2-fpm.sock;
         fastcgi_index index.php;
+        # include fastcgi_params;
         include fastcgi.conf;
     }
 
@@ -143,5 +142,9 @@ block="server {
 }
 "
 
-cat > /etc/nginx/sites-enabled/default
-echo "$block" > "/etc/nginx/sites-enabled/default"
+rm /etc/nginx/sites-enabled/default
+rm /etc/nginx/sites-available/default
+
+echo "$block" > "/etc/nginx/sites-available/default"
+ln -fs "/etc/nginx/sites-available/default" "/etc/nginx/sites-enabled/default"
+supervisorctl restart nginx

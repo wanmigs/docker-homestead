@@ -1,0 +1,5 @@
+web:
+  image: wanmigs/homestead:php7.2
+  restart: unless-stopped
+  ports:
+    - "8001:80" # web

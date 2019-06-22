@@ -37,6 +37,9 @@ block="server {
 }
 "
 
+rm /etc/nginx/sites-enabled/default
+rm /etc/nginx/sites-available/default
+
 echo "$block" > "/etc/nginx/sites-available/$1"
 ln -fs "/etc/nginx/sites-available/$1" "/etc/nginx/sites-enabled/$1"
 supervisorctl restart nginx
