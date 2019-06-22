@@ -70,15 +70,15 @@ phpdismod -s cli xdebug
 
 # Set The Nginx & PHP-FPM User
 sed -i '1 idaemon off;' /etc/nginx/nginx.conf
-sed -i "s/user www-data;/" /etc/nginx/nginx.conf
+sed -i "s/user www-data;/user homestead;/" /etc/nginx/nginx.conf
 sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 64;/" /etc/nginx/nginx.conf
 
 mkdir -p /run/php
 touch /run/php/php7.2-fpm.sock
-sed -i "s/user = www-data/" /etc/php/7.2/fpm/pool.d/www.conf
-sed -i "s/group = www-data/" /etc/php/7.2/fpm/pool.d/www.conf
-sed -i "s/;listen\.owner.*/" /etc/php/7.2/fpm/pool.d/www.conf
-sed -i "s/;listen\.group.*/" /etc/php/7.2/fpm/pool.d/www.conf
+sed -i "s/user = www-data/user = homestead/" /etc/php/7.2/fpm/pool.d/www.conf
+sed -i "s/group = www-data/group = homestead/" /etc/php/7.2/fpm/pool.d/www.conf
+sed -i "s/;listen\.owner.*/listen.owner = homestead/" /etc/php/7.2/fpm/pool.d/www.conf
+sed -i "s/;listen\.group.*/listen.group = homestead/" /etc/php/7.2/fpm/pool.d/www.conf
 sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/7.2/fpm/pool.d/www.conf
 
 # Install Node
